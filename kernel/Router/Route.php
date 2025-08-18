@@ -4,8 +4,7 @@ namespace Kernel\Router;
 
 class Route
 {
-    public function __construct(private string $uri, private string $method, private $callback)
-    {}
+    public function __construct(private string $uri, private string $method, private $callback) {}
 
     public static function get(string $uri, array|callable $handler): Route
     {

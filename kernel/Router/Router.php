@@ -2,18 +2,19 @@
 
 namespace Kernel\Router;
 
-use Kernel\Container\Container;
-use Kernel\Controller\Controller;
+use Kernel\Http\Redirect\Redirect;
+use Kernel\Http\Request\Request;
+use Kernel\Session\Session;
 use Kernel\View\View;
 
 class Router
 {
     private array $routes = [
         'GET' => [],
-        'POST' => []
+        'POST' => [],
     ];
 
-    public function __construct(private View $view)
+    public function __construct(private View $view, private Request $request, private Session $session, private Redirect $redirect)
     {
         $this->initRoutes();
     }
@@ -30,9 +31,12 @@ class Router
 
         if (is_array($route->getCallback())) {
             [$controller, $action] = $route->getCallback();
-            $controller = new $controller();
+            $controller = new $controller;
             $handler = [$controller, $action];
+            call_user_func_array([$controller, 'setRedirect'], [$this->redirect]);
+            call_user_func_array([$controller, 'setSession'], [$this->session]);
             call_user_func_array([$controller, 'setView'], [$this->view]);
+            call_user_func_array([$controller, 'setRequest'], [$this->request]);
         }
 
         call_user_func_array($handler, []);
@@ -69,6 +73,6 @@ class Router
      */
     private function getRoutes(): array
     {
-        return require APP_PATH . '/routes/web.php';
+        return require APP_PATH.'/routes/web.php';
     }
 }
