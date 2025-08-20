@@ -2,11 +2,11 @@
 
 namespace Kernel\Http\Request;
 
-use Kernel\Validator\Validator;
+use Kernel\Validator\ValidatorInterface;
 
-class Request
+class Request implements RequestInterface
 {
-    private Validator $validator;
+    private ValidatorInterface $validator;
 
     public function __construct(
         private readonly array $get,
@@ -47,7 +47,7 @@ class Request
         return $this->post;
     }
 
-    public function setValidator(Validator $validator): void
+    public function setValidator(ValidatorInterface $validator): void
     {
         $this->validator = $validator;
     }

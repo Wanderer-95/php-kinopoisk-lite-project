@@ -1,5 +1,5 @@
 <?php
 
-namespace kernel\Exceptions;
+namespace Kernel\Exceptions;
 
 class ViewNotFoundException extends \Exception {}

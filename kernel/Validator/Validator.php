@@ -27,7 +27,7 @@ namespace Kernel\Validator;
  *      print_r($validator->errors());
  *  }
  */
-class Validator
+class Validator implements ValidatorInterface
 {
     /** @var array<string, array<int, array{rule:string, params:array<int,string>}>> */
     private array $parsedRules = [];

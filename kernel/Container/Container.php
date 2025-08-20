@@ -2,26 +2,36 @@
 
 namespace Kernel\Container;
 
+use Kernel\Database\Database;
+use Kernel\Database\DatabaseInterface;
 use Kernel\Http\Redirect\Redirect;
+use kernel\Http\Redirect\RedirectInterface;
 use Kernel\Http\Request\Request;
+use kernel\Http\Request\RequestInterface;
 use Kernel\Router\Router;
+use kernel\Router\RouterInterface;
 use Kernel\Session\Session;
+use kernel\Session\SessionInterface;
 use Kernel\Validator\Validator;
+use kernel\Validator\ValidatorInterface;
 use Kernel\View\View;
+use kernel\View\ViewInterface;
 
 class Container
 {
-    private Router $router;
+    private RouterInterface $router;
 
-    private Request $request;
+    private RequestInterface $request;
 
-    private View $view;
+    private ViewInterface $view;
 
-    private Validator $validator;
+    private ValidatorInterface $validator;
 
-    private Redirect $redirect;
+    private RedirectInterface $redirect;
 
-    private Session $session;
+    private SessionInterface $session;
+
+    private DatabaseInterface $database;
 
     public function __construct(
     ) {
@@ -31,25 +41,26 @@ class Container
     private function registerServices(): void
     {
         $this->session = new Session();
+        $this->database = new Database();
         $this->redirect = new Redirect();
         $this->request = Request::createFromGlobals();
         $this->view = new View($this->session);
-        $this->router = new Router($this->view, $this->request, $this->session, $this->redirect);
+        $this->router = new Router($this->view, $this->request, $this->session, $this->redirect, $this->database);
         $this->validator = new Validator();
         $this->request->setValidator($this->validator);
     }
 
-    public function getRouter(): Router
+    public function getRouter(): RouterInterface
     {
         return $this->router;
     }
 
-    public function getRequest(): Request
+    public function getRequest(): RequestInterface
     {
         return $this->request;
     }
 
-    public function getView(): View
+    public function getView(): ViewInterface
     {
         return $this->view;
     }

@@ -2,19 +2,26 @@
 
 namespace Kernel\Router;
 
-use Kernel\Http\Redirect\Redirect;
-use Kernel\Http\Request\Request;
-use Kernel\Session\Session;
-use Kernel\View\View;
+use Kernel\Database\DatabaseInterface;
+use Kernel\Http\Redirect\RedirectInterface;
+use Kernel\Http\Request\RequestInterface;
+use Kernel\Session\SessionInterface;
+use Kernel\View\ViewInterface;
 
-class Router
+class Router implements RouterInterface
 {
     private array $routes = [
         'GET' => [],
         'POST' => [],
     ];
 
-    public function __construct(private View $view, private Request $request, private Session $session, private Redirect $redirect)
+    public function __construct(
+        private ViewInterface $view,
+        private RequestInterface $request,
+        private SessionInterface $session,
+        private RedirectInterface $redirect,
+        private DatabaseInterface $database
+    )
     {
         $this->initRoutes();
     }
@@ -37,6 +44,7 @@ class Router
             call_user_func_array([$controller, 'setSession'], [$this->session]);
             call_user_func_array([$controller, 'setView'], [$this->view]);
             call_user_func_array([$controller, 'setRequest'], [$this->request]);
+            call_user_func_array([$controller, 'setDatabase'], [$this->database]);
         }
 
         call_user_func_array($handler, []);

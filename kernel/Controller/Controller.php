@@ -2,67 +2,89 @@
 
 namespace Kernel\Controller;
 
+use Kernel\Database\DatabaseInterface;
 use Kernel\Http\Redirect\Redirect;
+use Kernel\Http\Redirect\RedirectInterface;
 use Kernel\Http\Request\Request;
+use Kernel\Http\Request\RequestInterface;
 use Kernel\Session\Session;
+use Kernel\Session\SessionInterface;
 use Kernel\View\View;
+use Kernel\View\ViewInterface;
 
 abstract class Controller
 {
-    private View $view;
-private Request $request;
-    private Redirect $redirect;
-    private Session $session;
+    private ViewInterface $view;
+    private RequestInterface $request;
+    private RedirectInterface $redirect;
+    private SessionInterface $session;
+    private DatabaseInterface $database;
 
     public function view(string $name): void
     {
         $this->view->render($name);
     }
 
-    public function setView(View $view): void
+    public function setView(ViewInterface $view): void
     {
         $this->view = $view;
     }
 
-    public function setRequest(Request $request): void
+    public function setRequest(RequestInterface $request): void
     {
         $this->request = $request;
     }
 
-    public function getRequest(): Request
+    public function getRequest(): RequestInterface
     {
         return $this->request;
     }
 
     /**
-     * @param Redirect $redirect
+     * @param RedirectInterface $redirect
      */
-    public function setRedirect(Redirect $redirect): void
+    public function setRedirect(RedirectInterface $redirect): void
     {
         $this->redirect = $redirect;
     }
 
     /**
-     * @return Redirect
+     * @return RedirectInterface
      */
-    public function getRedirect(): Redirect
+    public function getRedirect(): RedirectInterface
     {
         return $this->redirect;
     }
 
     /**
-     * @param Session $session
+     * @param SessionInterface $session
      */
-    public function setSession(Session $session): void
+    public function setSession(SessionInterface $session): void
     {
         $this->session = $session;
     }
 
     /**
-     * @return Session
+     * @return SessionInterface
      */
-    public function getSession(): Session
+    public function getSession(): SessionInterface
     {
         return $this->session;
+    }
+
+    /**
+     * @return DatabaseInterface
+     */
+    public function db(): DatabaseInterface
+    {
+        return $this->database;
+    }
+
+    /**
+     * @param DatabaseInterface $database
+     */
+    public function setDatabase(DatabaseInterface $database): void
+    {
+        $this->database = $database;
     }
 }

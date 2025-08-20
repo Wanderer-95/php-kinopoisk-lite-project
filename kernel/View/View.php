@@ -2,10 +2,10 @@
 
 namespace Kernel\View;
 
-use kernel\Exceptions\ViewNotFoundException;
+use Kernel\Exceptions\ViewNotFoundException;
 use Kernel\Session\Session;
 
-class View
+class View implements ViewInterface
 {
     public function __construct(private Session $session)
     {
