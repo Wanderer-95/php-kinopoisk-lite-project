@@ -4,5 +4,13 @@ namespace Kernel\Database;
 
 interface DatabaseInterface
 {
-    public function connect(): void;
+    public function insert(string $table, array $data): int|false;
+
+    public function first(string $table, array $conditions = []): ?array;
+
+    public function delete(string $table, array $conditions = []): void;
+
+    public function get(string $table, array $conditions = [], ?int $limit = null, ?string $order = null): array;
+
+    public function update(string $table, array $data, array $conditions = []): ?array;
 }

@@ -2,9 +2,11 @@
 
 namespace Kernel\Router;
 
+use Kernel\Auth\AuthInterface;
 use Kernel\Database\DatabaseInterface;
 use Kernel\Http\Redirect\RedirectInterface;
 use Kernel\Http\Request\RequestInterface;
+use Kernel\Middleware\AbstractMiddleware;
 use Kernel\Session\SessionInterface;
 use Kernel\View\ViewInterface;
 
@@ -20,9 +22,9 @@ class Router implements RouterInterface
         private RequestInterface $request,
         private SessionInterface $session,
         private RedirectInterface $redirect,
-        private DatabaseInterface $database
-    )
-    {
+        private DatabaseInterface $database,
+        private AuthInterface $auth
+    ) {
         $this->initRoutes();
     }
 
@@ -38,6 +40,20 @@ class Router implements RouterInterface
 
         if (is_array($route->getCallback())) {
             [$controller, $action] = $route->getCallback();
+
+            if ($route->hasMiddlewares()) {
+                /**
+                 * @var AbstractMiddleware $middleware
+                 */
+                foreach ($route->getMiddlewares() as $middlewareClass) {
+                    $middleware = new $middlewareClass(
+                        $this->request,
+                        $this->auth,
+                        $this->redirect
+                    );
+                    $middleware->handle();
+                }
+            }
             $controller = new $controller;
             $handler = [$controller, $action];
             call_user_func_array([$controller, 'setRedirect'], [$this->redirect]);
@@ -45,6 +61,7 @@ class Router implements RouterInterface
             call_user_func_array([$controller, 'setView'], [$this->view]);
             call_user_func_array([$controller, 'setRequest'], [$this->request]);
             call_user_func_array([$controller, 'setDatabase'], [$this->database]);
+            call_user_func_array([$controller, 'setAuth'], [$this->auth]);
         }
 
         call_user_func_array($handler, []);

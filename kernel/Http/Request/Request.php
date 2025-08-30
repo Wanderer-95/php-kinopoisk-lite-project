@@ -2,6 +2,8 @@
 
 namespace Kernel\Http\Request;
 
+use Kernel\Uploaded\UploadedFile;
+use Kernel\Uploaded\UploadedFileInterface;
 use Kernel\Validator\ValidatorInterface;
 
 class Request implements RequestInterface
@@ -60,5 +62,23 @@ class Request implements RequestInterface
     public function errors(): array
     {
         return $this->validator->errors();
+    }
+
+    public function file(string $key): ?UploadedFileInterface
+    {
+        $file = $this->files[$key] ?? null;
+
+        if (is_null($file) || $file['error'] !== UPLOAD_ERR_OK) {
+            return null;
+        }
+
+        return new UploadedFile(
+            $file['name'],
+            $file['tmp_name'],
+            $file['size'],
+            $file['error'],
+            $file['type'],
+            $file['full_path'],
+        );
     }
 }

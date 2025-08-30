@@ -39,8 +39,8 @@ class Validator implements ValidatorInterface
     private array $messages;
 
     /**
-     * @param array<string, string|array<int,string>> $rules
-     * @param array<string, string> $customMessages
+     * @param  array<string, string|array<int,string>>  $rules
+     * @param  array<string, string>  $customMessages
      */
     public function __construct(array $customMessages = [])
     {
@@ -51,13 +51,14 @@ class Validator implements ValidatorInterface
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public function validate(array $data, array $rules): bool
     {
         $this->parseRules($rules);
         $this->errors = [];
         $this->run($data);
+
         return empty($this->errors);
     }
 
@@ -68,7 +69,7 @@ class Validator implements ValidatorInterface
     }
 
     /**
-     * @param array<string, string|array<int,string>> $rules
+     * @param  array<string, string|array<int,string>>  $rules
      */
     private function parseRules(array $rules): void
     {
@@ -76,7 +77,9 @@ class Validator implements ValidatorInterface
             $items = is_array($ruleSet) ? $ruleSet : explode('|', (string) $ruleSet);
             foreach ($items as $r) {
                 $r = trim($r);
-                if ($r === '') { continue; }
+                if ($r === '') {
+                    continue;
+                }
                 $name = $r;
                 $params = [];
                 if (str_contains($r, ':')) {
@@ -92,7 +95,7 @@ class Validator implements ValidatorInterface
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     private function run(array $data): void
     {
@@ -100,7 +103,7 @@ class Validator implements ValidatorInterface
             $valueExists = array_key_exists($field, $data);
             $value = $valueExists ? $data[$field] : null;
 
-            $isEmpty = !$valueExists || $this->isEmpty($value);
+            $isEmpty = ! $valueExists || $this->isEmpty($value);
             foreach ($rules as $rule) {
                 $name = $rule['rule'];
                 $params = $rule['params'];
@@ -109,6 +112,7 @@ class Validator implements ValidatorInterface
                     if ($name === 'confirmation' && $valueExists) {
                         $this->validateConfirmation($data, $field, $value);
                     }
+
                     continue;
                 }
 
@@ -154,10 +158,6 @@ class Validator implements ValidatorInterface
             if (count($value) < $n) {
                 $this->addError($field, $this->message('min.array', $field, [$n]));
             }
-        } elseif (is_numeric($value)) {
-            if ((float) $value < $n) {
-                $this->addError($field, $this->message('min.numeric', $field, [$n]));
-            }
         } else {
             $len = $this->strlen((string) $value);
             if ($len < $n) {
@@ -198,7 +198,7 @@ class Validator implements ValidatorInterface
      * password[:lower,upper,digit,symbol,min=N]
      * Defaults: lower,upper,digit,symbol,min=8
      *
-     * @param list<string> $params
+     * @param  list<string>  $params
      */
     private function validatePassword(string $field, string $value, array $params): void
     {
@@ -210,33 +210,39 @@ class Validator implements ValidatorInterface
 
         foreach ($params as $p) {
             $p = strtolower($p);
-            if ($p === 'lower') { $needLower = true; }
-            elseif ($p === 'upper') { $needUpper = true; }
-            elseif ($p === 'digit') { $needDigit = true; }
-            elseif ($p === 'symbol') { $needSymbol = true; }
-            elseif (str_starts_with($p, 'min=')) { $min = max(1, (int) substr($p, 4)); }
+            if ($p === 'lower') {
+                $needLower = true;
+            } elseif ($p === 'upper') {
+                $needUpper = true;
+            } elseif ($p === 'digit') {
+                $needDigit = true;
+            } elseif ($p === 'symbol') {
+                $needSymbol = true;
+            } elseif (str_starts_with($p, 'min=')) {
+                $min = max(1, (int) substr($p, 4));
+            }
         }
 
         if ($this->strlen($value) < $min) {
             $this->addError($field, $this->message('password.min', $field, [$min]));
         }
-        if ($needLower && !preg_match('/[a-z]/u', $value)) {
+        if ($needLower && ! preg_match('/[a-z]/u', $value)) {
             $this->addError($field, $this->message('password.lower', $field));
         }
-        if ($needUpper && !preg_match('/[A-Z]/u', $value)) {
+        if ($needUpper && ! preg_match('/[A-Z]/u', $value)) {
             $this->addError($field, $this->message('password.upper', $field));
         }
-        if ($needDigit && !preg_match('/\d/u', $value)) {
+        if ($needDigit && ! preg_match('/\d/u', $value)) {
             $this->addError($field, $this->message('password.digit', $field));
         }
-        if ($needSymbol && !preg_match('/[^\p{L}\p{N}\s]/u', $value)) {
+        if ($needSymbol && ! preg_match('/[^\p{L}\p{N}\s]/u', $value)) {
             $this->addError($field, $this->message('password.symbol', $field));
         }
     }
 
     private function validateConfirmation(array $data, string $field, mixed $value): void
     {
-        $confirmationField = $field . '_confirmation';
+        $confirmationField = $field.'_confirmation';
         $expected = $data[$confirmationField] ?? null;
         if ($value !== $expected) {
             $this->addError($field, $this->message('confirmation', $field));
@@ -245,9 +251,16 @@ class Validator implements ValidatorInterface
 
     private function isEmpty(mixed $value): bool
     {
-        if ($value === null) return true;
-        if (is_string($value)) return trim($value) === '';
-        if (is_array($value)) return count($value) === 0;
+        if ($value === null) {
+            return true;
+        }
+        if (is_string($value)) {
+            return trim($value) === '';
+        }
+        if (is_array($value)) {
+            return count($value) === 0;
+        }
+
         return false;
     }
 
@@ -267,8 +280,9 @@ class Validator implements ValidatorInterface
         $template = $this->messages[$key] ?? $key;
         $msg = str_replace(':attribute', $field, $template);
         foreach ($repl as $i => $val) {
-            $msg = str_replace(':param'.($i+1), (string)$val, $msg);
+            $msg = str_replace(':param'.($i + 1), (string) $val, $msg);
         }
+
         return $msg;
     }
 

@@ -7,5 +7,5 @@ return [
     'user' => 'root',
     'pass' => 'root',
     'database' => 'kinopoisk_db',
-    'charset' => 'utf8mb4'
+    'charset' => 'utf8mb4',
 ];

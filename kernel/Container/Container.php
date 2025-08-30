@@ -2,6 +2,8 @@
 
 namespace Kernel\Container;
 
+use Kernel\Auth\Auth;
+use Kernel\Auth\AuthInterface;
 use Kernel\Database\Database;
 use Kernel\Database\DatabaseInterface;
 use Kernel\Http\Redirect\Redirect;
@@ -33,6 +35,8 @@ class Container
 
     private DatabaseInterface $database;
 
+    private AuthInterface $auth;
+
     public function __construct(
     ) {
         $this->registerServices();
@@ -40,13 +44,14 @@ class Container
 
     private function registerServices(): void
     {
-        $this->session = new Session();
-        $this->database = new Database();
-        $this->redirect = new Redirect();
+        $this->session = new Session;
+        $this->database = new Database;
+        $this->redirect = new Redirect;
+        $this->auth = new Auth($this->database, $this->session);
         $this->request = Request::createFromGlobals();
-        $this->view = new View($this->session);
-        $this->router = new Router($this->view, $this->request, $this->session, $this->redirect, $this->database);
-        $this->validator = new Validator();
+        $this->view = new View($this->session, $this->auth);
+        $this->router = new Router($this->view, $this->request, $this->session, $this->redirect, $this->database, $this->auth);
+        $this->validator = new Validator;
         $this->request->setValidator($this->validator);
     }
 
